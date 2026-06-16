@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 1. 数据源（完全保留你之前调好的配置，不用改） -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://localhost:3306/test?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=Asia/Shanghai&amp;useSSL=false&amp;allowPublicKeyRetrieval=true" />
+        <property name="username" value="root" />
+        <property name="password" value="123456" /> <!-- 只改这里！ -->
+    </bean>
+
+    <!-- 2. MyBatis核心工厂（替代JdbcTemplate） -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <!-- 开启自动驼峰转换（数据库下划线→实体类驼峰） -->
+        <property name="configuration">
+            <bean class="org.apache.ibatis.session.Configuration">
+                <property name="mapUnderscoreToCamelCase" value="true" />
+            </bean>
+        </property>
+    </bean>
+
+    <!-- 3. 扫描DAO层接口，自动生成代理实现 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="edu.jxpu.dao" />
+    </bean>
+
+    <!-- 4. 原有配置不变：扫描Service和AOP -->
+    <context:component-scan base-package="edu.jxpu.service,edu.jxpu.aop" />
+    <aop:aspectj-autoproxy />
+
+</beans>
